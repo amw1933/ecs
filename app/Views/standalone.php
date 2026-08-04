@@ -22,7 +22,7 @@ $pageTitle = $pageTitle ?? 'OpsDeck';
         </span>
         <div>
             <h1>OpsDeck</h1>
-            <p>ECS 运维面板</p>
+            <p>CDT 管理保活面板</p>
         </div>
     </div>
     <?php if ($flash = flash_pull()): ?>

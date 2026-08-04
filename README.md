@@ -1,6 +1,6 @@
-# OpsDeck · ECS 运维面板
+# OpsDeck · CDT 管理保活面板
 
-一个用纯 PHP 部署的阿里云 ECS 管理面板。主题、布局、网格与前端实现均为独立设计
+一个用纯 PHP 部署的阿里云 CDT 管理保活面板。主题、布局、网格与前端实现均为独立设计
 （深色操作台风格 + 顶部导航 + 12 栏网格），后端为从零编写的 PHP 实现，不依赖任何 Composer 包。
 
 ## 一条命令自动拉取部署
@@ -165,7 +165,7 @@ php cron.php guard     # 仅执行熔断检查
 
 | 变量 | 说明 | 默认 |
 |---|---|---|
-| `APP_NAME` | 面板名称 | OpsDeck · ECS 运维面板 |
+| `APP_NAME` | 面板名称 | OpsDeck · CDT 管理保活面板 |
 | `APP_TIMEZONE` | 时区 | Asia/Shanghai |
 | `APP_BASE_PATH` | 子目录部署路径（默认自动识别，如 `/ecs/public/` 下运行无需设置） | （自动） |
 | `DB_PATH` | SQLite 数据库路径 | storage/panel.db |

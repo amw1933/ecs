@@ -34,7 +34,7 @@ $demo = has_demo_account();
         </span>
         <div class="brand-text">
             <strong>OpsDeck</strong>
-            <span>ECS 运维面板</span>
+            <span>CDT 管理保活面板</span>
         </div>
     </div>
     <nav class="topnav">

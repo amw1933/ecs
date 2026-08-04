@@ -17,7 +17,7 @@ if (!function_exists('opsdeck_env')) {
 
 return [
     // 面板名称（顶部导航与标题栏显示）
-    'app_name'        => opsdeck_env('APP_NAME', 'OpsDeck · ECS 运维面板'),
+    'app_name'        => opsdeck_env('APP_NAME', 'OpsDeck · CDT 管理保活面板'),
 
     // 时区
     'timezone'        => opsdeck_env('APP_TIMEZONE', 'Asia/Shanghai'),
@@ -45,5 +45,5 @@ return [
     'session_name'    => 'opsdeck_sess',
 
     // 版本号（用于静态资源缓存刷新）
-    'version'         => '1.0.7',
+    'version'         => '1.0.8',
 ];
