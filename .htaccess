@@ -1,0 +1,36 @@
+# OpsDeck ECS 面板 — 根目录访问保护
+# 阻止通过网址直接访问不应暴露的文件（Apache 2.2/2.4 兼容）
+
+# 目录即 Web 根（零配置部署）：所有未命中真实文件的请求交给 index.php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # 敏感目录与文件直接拒绝（即使物理存在也不放行）
+    RewriteRule ^(app|storage)(/|$) - [F,L]
+    RewriteRule ^(cron\.php|README\.md|DEPLOY\.md|start-dev\.(ps1|sh)|\.gitignore|\.htaccess)$ - [F,L]
+    # 已存在的文件/目录直接访问（如 public/assets/...）
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    # 其余交给根入口（index.php 会把 /assets/ 映射到 public/assets/）
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<FilesMatch "^(cron\.php|README\.md|start-dev\.(ps1|sh)|\.gitignore|\.htaccess)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<FilesMatch "\.(db|db-wal|db-shm|db-journal|key|lock|log)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>

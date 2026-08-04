@@ -1,0 +1,7 @@
+storage/*.db
+storage/*.db-*
+storage/app.key
+storage/logs/*.log
+storage/cache/*
+storage/scheduler.lock
+_ref_template.html
