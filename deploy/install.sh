@@ -22,13 +22,27 @@ CRON_INTERVAL="${CRON_INTERVAL:-60}"
 command -v git >/dev/null 2>&1 || { echo "[错误] 缺少 git"; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "[错误] 缺少 docker（群晖请先安装 Docker 套件）"; exit 1; }
 
+project_ok() {
+    [ -f "$1/app/bootstrap.php" ] \
+        && [ -f "$1/deploy/docker/Dockerfile" ] \
+        && { [ -f "$1/docker-compose.yml" ] || [ -f "$1/compose.yaml" ]; }
+}
+
 if [ -n "$REPO_URL" ]; then
     if [ -d "$DEPLOY_DIR/.git" ]; then
         echo "==> 更新已有代码：$DEPLOY_DIR"
         git -C "$DEPLOY_DIR" pull --ff-only
-    elif [ -f "$DEPLOY_DIR/docker-compose.yml" ] || [ -f "$DEPLOY_DIR/compose.yaml" ]; then
+    elif project_ok "$DEPLOY_DIR"; then
         echo "==> 目标目录已有项目代码，跳过克隆：$DEPLOY_DIR"
     else
+        if [ -d "$DEPLOY_DIR" ] && { [ -e "$DEPLOY_DIR/data/panel.db" ] || [ -e "$DEPLOY_DIR/storage/panel.db" ]; }; then
+            echo "[错误] $DEPLOY_DIR 代码不完整但 data/storage 里已有数据；请先备份数据目录，再删除该目录后重跑。"
+            exit 1
+        fi
+        if [ -d "$DEPLOY_DIR" ]; then
+            mv "$DEPLOY_DIR" "${DEPLOY_DIR}.incomplete-$(date +%s)"
+            echo "==> 残留的不完整目录已移走，将重新拉取代码"
+        fi
         echo "==> 自动创建部署目录并克隆代码：$DEPLOY_DIR"
         mkdir -p "$DEPLOY_DIR"
         git clone --depth 1 "$REPO_URL" "$DEPLOY_DIR"
