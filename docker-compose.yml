@@ -1,6 +1,8 @@
 services:
   ecs:
-    build: .
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile
     image: opsdeck-ecs:latest
     container_name: ecs
     restart: unless-stopped
