@@ -14,6 +14,9 @@ REPO_URL=https://github.com/amw1933/ecs.git bash -c "$(curl -fsSL https://raw.gi
 脚本会自动：创建部署目录（默认 `/volume1/docker/ecs`）→ 拉取最新代码 → 修正权限 →
 启动服务（默认监听 `0.0.0.0:43211`），并提示初始化 token 的查看方式。
 
+脚本默认使用**拉取模式**：直接拉取已发布的 Docker Hub 镜像（`docker.io/amw1933/opsdeck-ecs:latest`），
+不需要代码和构建；设置 `REPO_URL` 则切换为**构建模式**（拉源码到 `-build` 目录构建）。
+
 **部署完成即自动守护**：内置调度容器每 `CRON_INTERVAL` 秒（默认 60）自动运行一次调度，
 抢占实例被停止后自动拉起并通知——不需要打开网页，也不需要配置任何系统定时任务。
 
@@ -21,7 +24,26 @@ REPO_URL=https://github.com/amw1933/ecs.git bash -c "$(curl -fsSL https://raw.gi
 （数据库、密钥、日志都在 data 里），看不到源码文件；备份/迁移拷贝 `data/` 即可。
 
 可选环境变量：`DEPLOY_DIR`（部署目录）、`PORT`（监听地址，如 `0.0.0.0:8080`）、
-`CRON_INTERVAL`（调度间隔秒，默认 3600）。以后更新重跑同一条命令即可，数据保存在 `storage/`。
+`CRON_INTERVAL`（调度间隔秒，默认 60）。以后更新重跑同一条命令即可，数据保存在 `data/`。
+
+**可视化面板（Portainer / 群晖 Container Manager）**：镜像已发布到 Docker Hub，直接粘贴此 YAML 即可自动拉取部署：
+
+```yaml
+services:
+  ecs:
+    image: docker.io/amw1933/opsdeck-ecs:latest
+    container_name: "${CONTAINER_NAME:-ecs}"
+    restart: unless-stopped
+    ports:
+      - "${PORT:-0.0.0.0:43211}:80"
+    environment:
+      TZ: Asia/Shanghai
+      CRON_INTERVAL: "${CRON_INTERVAL:-60}"
+    volumes:
+      - ./data:/var/www/ecs/storage
+```
+
+每次推送代码到 GitHub，Actions 会自动重新构建并发布镜像（见 `.github/workflows/docker-image.yml`）。
 
 完整部署文档见 [DEPLOY.md](DEPLOY.md)。
 

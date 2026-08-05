@@ -1,6 +1,6 @@
 services:
   ecs:
-    image: opsdeck-ecs:latest
+    image: "${IMAGE:-docker.io/amw1933/opsdeck-ecs:latest}"
     container_name: "${CONTAINER_NAME:-ecs}"
     restart: unless-stopped
     ports:

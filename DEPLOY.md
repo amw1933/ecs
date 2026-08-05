@@ -158,7 +158,7 @@ REPO_URL=https://github.com/amw1933/ecs.git bash -c "$(curl -fsSL https://raw.gi
 ```yaml
 services:
   ecs:
-    image: docker.io/你的DockerHub用户名/opsdeck-ecs:latest
+    image: docker.io/amw1933/opsdeck-ecs:latest
     container_name: "${CONTAINER_NAME:-ecs}"
     restart: unless-stopped
     ports:
@@ -171,6 +171,9 @@ services:
 ```
 
 镜像更新时重新 `docker compose pull && docker compose up -d` 即可。
+
+> 本项目已按上述流程配置完成：Docker Hub 仓库 `amw1933/opsdeck-ecs` 已发布 `latest` 镜像，
+> GitHub Actions 自动构建发布已启用。
 
 ## 常见问题
 
