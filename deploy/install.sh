@@ -26,13 +26,15 @@ if [ -n "$REPO_URL" ]; then
     if [ -d "$DEPLOY_DIR/.git" ]; then
         echo "==> 更新已有代码：$DEPLOY_DIR"
         git -C "$DEPLOY_DIR" pull --ff-only
+    elif [ -f "$DEPLOY_DIR/docker-compose.yml" ] || [ -f "$DEPLOY_DIR/compose.yaml" ]; then
+        echo "==> 目标目录已有项目代码，跳过克隆：$DEPLOY_DIR"
     else
         echo "==> 自动创建部署目录并克隆代码：$DEPLOY_DIR"
         mkdir -p "$DEPLOY_DIR"
         git clone --depth 1 "$REPO_URL" "$DEPLOY_DIR"
     fi
     cd "$DEPLOY_DIR"
-elif [ -f ./docker-compose.yml ]; then
+elif [ -f ./docker-compose.yml ] || [ -f ./compose.yaml ]; then
     echo "==> 使用当前目录部署（无需另建 web 目录）"
     cd "$(pwd)"
 else
