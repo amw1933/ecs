@@ -1,42 +1,15 @@
 services:
-  php:
-    build: ./deploy/docker
-    container_name: ecs-php
+  ecs:
+    build: .
+    image: opsdeck-ecs:latest
+    container_name: ecs
     restart: unless-stopped
-    environment:
-      TZ: Asia/Shanghai
-    volumes:
-      - .:/var/www/ecs
-      - ./storage:/var/www/ecs/storage
-    working_dir: /var/www/ecs
-
-  nginx:
-    image: nginx:alpine
-    container_name: ecs-nginx
-    restart: unless-stopped
-    depends_on:
-      - php
     ports:
       # 默认监听所有网卡 43211（局域网可访问）；只需本机访问可 PORT=127.0.0.1:43211
       - "${PORT:-0.0.0.0:43211}:80"
-    volumes:
-      - .:/var/www/ecs:ro
-      - ./deploy/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-
-  cron:
-    build: ./deploy/docker
-    container_name: ecs-cron
-    restart: unless-stopped
-    # 与 php-fpm 使用同一用户（www-data），避免文件归属不一致导致数据库只读
-    user: "82:82"
-    depends_on:
-      - php
     environment:
       TZ: Asia/Shanghai
       CRON_INTERVAL: "${CRON_INTERVAL:-60}"
     volumes:
-      - .:/var/www/ecs
-      - ./storage:/var/www/ecs/storage
-    working_dir: /var/www/ecs
-    # 定时调度：负责定时任务、自动保活、流量熔断、成本同步
-    command: ["sh", "-c", "while true; do php cron.php run; sleep ${CRON_INTERVAL:-60}; done"]
+      # 宿主机只需一个 data 目录：映射为容器内的 storage（数据库、密钥、日志全部在这里）
+      - ./data:/var/www/ecs/storage

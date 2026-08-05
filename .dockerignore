@@ -1,0 +1,8 @@
+.git
+data
+storage
+blog_article.md
+blog_assets
+blog_assets_raw
+*.md.bak
+*.log

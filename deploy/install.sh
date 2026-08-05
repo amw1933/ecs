@@ -40,20 +40,25 @@ else
 fi
 
 echo "==> 设置 storage 权限"
-chmod -R 777 storage 2>/dev/null || true
+mkdir -p data
+if [ -d storage ] && [ ! -e data/panel.db ] && [ ! -e data/.htaccess ]; then
+    echo "==> 迁移旧 storage 数据到 data/（新结构只需一个 data 目录）"
+    cp -a storage/. data/ 2>/dev/null || true
+fi
+chmod -R 777 data 2>/dev/null || true
 
 echo "==> 启动服务（首次会自动拉取基础镜像并构建）"
 PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" docker compose up -d --build
 
 echo "==> 修正 storage 属主（统一为 www-data，避免数据库只读）"
-docker exec -u root ecs-php chown -R www-data:www-data storage 2>/dev/null || true
+docker exec -u root ecs chown -R www-data:www-data /var/www/ecs/storage 2>/dev/null || true
 
 echo "==> 验证自动调度容器"
-docker ps --filter "name=ecs-cron" --format "ecs-cron 运行中（每 ${CRON_INTERVAL} 秒执行一次调度）" 2>/dev/null || true
+docker ps --filter "name=ecs" --format "ecs 运行中（内置调度每 ${CRON_INTERVAL} 秒执行一次）" 2>/dev/null || true
 
 echo ""
 echo "部署完成："
 echo "  访问地址：http://服务器IP:${PORT##*:}"
 echo "  自动守护：已启用（每 ${CRON_INTERVAL} 秒自动检查并拉起抢占实例，无需打开网页/系统定时任务）"
-echo "  初始化 token：cat $DEPLOY_DIR/storage/logs/app.log 2>/dev/null | grep '初始化 token'"
+echo "  初始化 token：cat $DEPLOY_DIR/data/logs/app.log 2>/dev/null | grep '初始化 token'"
 echo "  查看日志：cd $DEPLOY_DIR && docker compose logs -f"

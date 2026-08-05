@@ -92,20 +92,37 @@ DocumentRoot /var/www/ecs-panel
 # 1. 把整个项目放到服务器任意目录，例如 /volume1/docker/ecs
 cd /volume1/docker/ecs
 
-# 2. 保证 storage 可写（容器内以 www-data 运行）
-chmod -R 777 storage
+# 2. 只需一个 data 目录（数据库/密钥/日志都在这），容器内以 www-data 运行
+mkdir -p data
+chmod -R 777 data
 
 # 3. 构建并启动
 docker compose up -d --build
 ```
 
-- 访问：`http://服务器IP:8080`（首次打开进入初始化页，含环境自检）。
+- 访问：`http://服务器IP:43211`（首次打开进入初始化页，含环境自检）。
 - 改端口：`PORT=80 docker compose up -d`
-- 定时调度：内置 `cron` 容器按 `CRON_INTERVAL` 秒执行一次 `php cron.php run`，
+- 定时调度：容器内置常驻循环，按 `CRON_INTERVAL` 秒执行一次 `php cron.php run`，
   默认 **60（每分钟）**，负责定时任务、自动保活、流量熔断、成本同步；
   不需要打开网页，也不需要配置系统定时任务；想改间隔：`CRON_INTERVAL=300 docker compose up -d`
-- 数据持久化：全部在 `./storage`（含 `panel.db` 与 `app.key`），备份/迁移拷贝该目录即可。
-- 停止：`docker compose down`（保留数据）；彻底删除容器但保留数据也一样，数据在宿主机目录里。
+- 数据持久化：全部在 `./data`（映射为容器内 storage，含 `panel.db` 与 `app.key`），备份/迁移拷贝该目录即可。
+- 代码打进镜像（`/var/www/ecs`），宿主机不需要代码目录，只有一个 `data/`。
+
+### Docker 卸载
+
+```bash
+cd /volume1/docker/ecs
+docker compose down --remove-orphans        # 停止并删除容器（保留 ./data 数据）
+```
+
+彻底清理（**会删除数据，谨慎**）：
+
+```bash
+cd /volume1/docker/ecs
+docker compose down --rmi local --remove-orphans
+docker rmi opsdeck-ecs:latest 2>/dev/null || true
+rm -rf ./data                              # 删除全部数据（面板/账号/密钥），不可恢复
+```
 
 ## 八、一条命令自动拉取部署
 
@@ -118,14 +135,14 @@ REPO_URL=https://github.com/amw1933/ecs.git bash -c "$(curl -fsSL https://raw.gi
 脚本会自动：创建部署目录（默认 `/volume1/docker/ecs`，无需手动建）→ 拉取最新代码 →
 设置权限 → `docker compose up -d --build` 启动，并打印初始化 token 的查看方式。
 
-**部署完成即自动守护**：内置 `cron` 容器每 `CRON_INTERVAL` 秒（默认 60）自动运行一次调度，
+**部署完成即自动守护**：容器内置常驻循环，每 `CRON_INTERVAL` 秒（默认 60）自动运行一次调度，
 负责自动保活、流量熔断、定时任务与成本同步——不依赖打开网页，也不需要配置系统定时任务。
 
 常用覆盖项（环境变量）：`DEPLOY_DIR` 部署目录、`PORT` 宿主机监听（默认 `0.0.0.0:43211`，局域网可访问；
 只想本机访问可设 `127.0.0.1:43211`）、
-`CRON_INTERVAL` 调度间隔秒（默认 3600）。
+`CRON_INTERVAL` 调度间隔秒（默认 60）。
 
-以后更新：重新执行同一条命令即可（自动 `git pull` 并重启容器，数据保留在 `storage/`）。
+以后更新：重新执行同一条命令即可（自动 `git pull` 并重新构建重启容器，数据保留在 `data/`）。
 
 ## 常见问题
 
