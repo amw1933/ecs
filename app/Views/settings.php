@@ -119,7 +119,7 @@ $accounts = \App\Services\EcsService::allAccounts();
                 </label>
                 <label class="field field-check">
                     <input type="checkbox" name="keepalive_auto" value="1" <?= \App\Services\AccountConfig::keepaliveAuto((int)$a['id']) ? 'checked' : '' ?>>
-                    <span><strong>自动保活（所有抢占式实例）</strong><br><small>无需创建保活任务，调度每轮自动检查：面板创建的实例被释放后自动重建；非面板创建的停止后自动拉起、释放后发通知</small></span>
+                    <span><strong>自动保活（所有抢占式实例）</strong><br><small>新添加的真实账号默认开启；无需创建保活任务，调度每轮自动检查：面板创建的实例被释放后自动重建；非面板创建的停止后自动拉起、释放后发通知</small></span>
                 </label>
                 <p class="hint">自动保活的检查频率 = 服务器上 cron.php run 的执行频率。保存后该账号与其它账号互不影响；单实例阈值与「每月 1 号自动开机」在实例详情页单独配置。</p>
                 <div class="form-foot">

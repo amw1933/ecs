@@ -124,9 +124,13 @@ final class ApiController
         Db::pdo()->prepare(
             'INSERT INTO accounts (name, access_key_id, access_key_secret_enc, region, quota_gb, enabled, is_demo, note, created_at, updated_at)
              VALUES (?,?,?,?,?,1,?,?,?,?)'
-        )->execute([$name, $ak, $enc, $region, $quota, $isDemo, (string)post('note', ''), date('Y-m-d H:i:s'), date('Y-m-d H:i:s')]);
-        $accountId = (int)Db::pdo()->lastInsertId();
-        log_event('account', 'info', "已添加账号「{$name}」", $isDemo === 1 ? '演示账号' : 'Region：' . $region);
+          )->execute([$name, $ak, $enc, $region, $quota, $isDemo, (string)post('note', ''), date('Y-m-d H:i:s'), date('Y-m-d H:i:s')]);
+          $accountId = (int)Db::pdo()->lastInsertId();
+          // 新添加的真实账号默认开启自动保活（演示账号除外），可在「设置 → 账号设置」随时关闭
+          if ($isDemo !== 1) {
+              \App\Services\AccountConfig::saveKeepaliveAuto($accountId, true);
+          }
+          log_event('account', 'info', "已添加账号「{$name}」", $isDemo === 1 ? '演示账号' : 'Region：' . $region);
         $account = EcsService::account($accountId);
         if ($account !== null) {
             // 添加后自动同步实例缓存与本月流量
