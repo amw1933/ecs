@@ -8,6 +8,7 @@
 #   DEPLOY_DIR     部署目录（默认 /volume1/docker/ecs，自动创建，无需手动建）
 #   PORT           宿主机监听（默认 0.0.0.0:43211，局域网可访问）
 #   CRON_INTERVAL  自动调度间隔秒（默认 60，每分钟一次）
+#   DATA_SOURCE    旧部署的 data 目录；新部署时自动继承数据（账号/密钥/日志），留空则不复制
 #
 # 部署完成后即自动守护：内置 cron 容器每 CRON_INTERVAL 秒自动运行调度，
 # 抢占实例停止后自动拉起并通知——不需要打开网页，也不需要配置系统定时任务。
@@ -41,6 +42,10 @@ fi
 
 echo "==> 设置 storage 权限"
 mkdir -p data
+if [ -n "${DATA_SOURCE:-}" ] && [ -f "$DATA_SOURCE/panel.db" ] && [ -f "$DATA_SOURCE/app.key" ] && [ ! -e data/panel.db ]; then
+    echo "==> 从 $DATA_SOURCE 自动继承数据（账号/密钥）"
+    cp -a "$DATA_SOURCE/." data/
+fi
 if [ -d storage ] && [ ! -e data/panel.db ] && [ ! -e data/.htaccess ]; then
     echo "==> 迁移旧 storage 数据到 data/（新结构只需一个 data 目录）"
     cp -a storage/. data/ 2>/dev/null || true
