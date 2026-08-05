@@ -144,6 +144,34 @@ REPO_URL=https://github.com/amw1933/ecs.git bash -c "$(curl -fsSL https://raw.gi
 
 以后更新：重新执行同一条命令即可（自动 `git pull` 并重新构建重启容器，数据保留在 `data/`）。
 
+## 九、发布镜像，让 YAML 自动拉取（可选）
+
+想在任何机器上只靠一个 YAML 自动拉镜像（不构建、不需要代码文件），需要先把镜像发布到镜像仓库。
+
+1. 注册 Docker Hub 账号，创建一个公开仓库（如 `opsdeck-ecs`），并生成 Access Token。
+2. 在 GitHub 仓库 Settings → Secrets and variables → Actions 添加：
+   - `DOCKERHUB_USERNAME`：你的 Docker Hub 用户名
+   - `DOCKERHUB_TOKEN`：你的 Docker Hub Access Token
+3. 仓库已内置 `.github/workflows/docker-image.yml`：**每次推送 main 分支，GitHub Actions 自动构建并推送镜像**。
+4. 之后可视化面板直接粘贴（部署时自动拉取）：
+
+```yaml
+services:
+  ecs:
+    image: docker.io/你的DockerHub用户名/opsdeck-ecs:latest
+    container_name: "${CONTAINER_NAME:-ecs}"
+    restart: unless-stopped
+    ports:
+      - "${PORT:-0.0.0.0:43211}:80"
+    environment:
+      TZ: Asia/Shanghai
+      CRON_INTERVAL: "${CRON_INTERVAL:-60}"
+    volumes:
+      - ./data:/var/www/ecs/storage
+```
+
+镜像更新时重新 `docker compose pull && docker compose up -d` 即可。
+
 ## 常见问题
 
 - **打开是白屏**：看 `storage/logs/app.log` 与 PHP 错误日志；通常是扩展缺失或 storage 不可写（初始化页自检会直接标红）。
