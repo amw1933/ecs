@@ -118,6 +118,9 @@ REPO_URL=https://github.com/amw1933/ecs.git bash -c "$(curl -fsSL https://raw.gi
 脚本会自动：创建部署目录（默认 `/volume1/docker/ecs`，无需手动建）→ 拉取最新代码 →
 设置权限 → `docker compose up -d --build` 启动，并打印初始化 token 的查看方式。
 
+**部署完成即自动守护**：内置 `cron` 容器每 `CRON_INTERVAL` 秒（默认 60）自动运行一次调度，
+负责自动保活、流量熔断、定时任务与成本同步——不依赖打开网页，也不需要配置系统定时任务。
+
 常用覆盖项（环境变量）：`DEPLOY_DIR` 部署目录、`PORT` 宿主机监听（默认 `0.0.0.0:43211`，局域网可访问；
 只想本机访问可设 `127.0.0.1:43211`）、
 `CRON_INTERVAL` 调度间隔秒（默认 3600）。
