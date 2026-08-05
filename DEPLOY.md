@@ -102,8 +102,8 @@ docker compose up -d --build
 - 访问：`http://服务器IP:8080`（首次打开进入初始化页，含环境自检）。
 - 改端口：`PORT=80 docker compose up -d`
 - 定时调度：内置 `cron` 容器按 `CRON_INTERVAL` 秒执行一次 `php cron.php run`，
-  默认 **3600（1 小时）**，负责定时任务、自动保活、流量熔断、成本同步；
-  想每分钟执行：`CRON_INTERVAL=60 docker compose up -d`
+  默认 **60（每分钟）**，负责定时任务、自动保活、流量熔断、成本同步；
+  不需要打开网页，也不需要配置系统定时任务；想改间隔：`CRON_INTERVAL=300 docker compose up -d`
 - 数据持久化：全部在 `./storage`（含 `panel.db` 与 `app.key`），备份/迁移拷贝该目录即可。
 - 停止：`docker compose down`（保留数据）；彻底删除容器但保留数据也一样，数据在宿主机目录里。
 

@@ -7,13 +7,13 @@
 # 可选环境变量：
 #   DEPLOY_DIR     部署目录（默认 /volume1/docker/ecs，自动创建，无需手动建）
 #   PORT           宿主机监听（默认 0.0.0.0:43211，局域网可访问）
-#   CRON_INTERVAL  调度执行间隔秒（默认 3600，即 1 小时一次）
+#   CRON_INTERVAL  调度执行间隔秒（默认 60，即每分钟一次，对齐参考项目行为）
 set -e
 
 REPO_URL="${REPO_URL:-}"
 DEPLOY_DIR="${DEPLOY_DIR:-/volume1/docker/ecs}"
 PORT="${PORT:-0.0.0.0:43211}"
-CRON_INTERVAL="${CRON_INTERVAL:-3600}"
+CRON_INTERVAL="${CRON_INTERVAL:-60}"
 
 command -v git >/dev/null 2>&1 || { echo "[错误] 缺少 git"; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "[错误] 缺少 docker（群晖请先安装 Docker 套件）"; exit 1; }
