@@ -9,6 +9,7 @@
 #   PORT           宿主机监听（默认 0.0.0.0:43211，局域网可访问）
 #   CRON_INTERVAL  自动调度间隔秒（默认 60，每分钟一次）
 #   DATA_SOURCE    旧部署的 data 目录；新部署时自动继承数据（账号/密钥/日志），留空则不复制
+#   CONTAINER_NAME 容器名（默认 ecs；多实例测试时可改，如 ecs-test）
 #
 # 部署完成后即自动守护：内置 cron 容器每 CRON_INTERVAL 秒自动运行调度，
 # 抢占实例停止后自动拉起并通知——不需要打开网页，也不需要配置系统定时任务。
@@ -18,6 +19,7 @@ REPO_URL="${REPO_URL:-}"
 DEPLOY_DIR="${DEPLOY_DIR:-/volume1/docker/ecs}"
 PORT="${PORT:-0.0.0.0:43211}"
 CRON_INTERVAL="${CRON_INTERVAL:-60}"
+CONTAINER_NAME="${CONTAINER_NAME:-ecs}"
 
 command -v git >/dev/null 2>&1 || { echo "[错误] 缺少 git"; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "[错误] 缺少 docker（群晖请先安装 Docker 套件）"; exit 1; }
@@ -69,13 +71,13 @@ fi
 chmod -R 777 data 2>/dev/null || true
 
 echo "==> 启动服务（首次会自动拉取基础镜像并构建）"
-PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" docker compose up -d --build
+PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" CONTAINER_NAME="$CONTAINER_NAME" docker compose up -d --build
 
 echo "==> 修正 storage 属主（统一为 www-data，避免数据库只读）"
-docker exec -u root ecs chown -R www-data:www-data /var/www/ecs/storage 2>/dev/null || true
+docker exec -u root "$CONTAINER_NAME" chown -R www-data:www-data /var/www/ecs/storage 2>/dev/null || true
 
 echo "==> 验证自动调度容器"
-docker ps --filter "name=ecs" --format "ecs 运行中（内置调度每 ${CRON_INTERVAL} 秒执行一次）" 2>/dev/null || true
+docker ps --filter "name=${CONTAINER_NAME}" --format "${CONTAINER_NAME} 运行中（内置调度每 ${CRON_INTERVAL} 秒执行一次）" 2>/dev/null || true
 
 echo ""
 echo "部署完成："

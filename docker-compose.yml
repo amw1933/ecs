@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: deploy/docker/Dockerfile
     image: opsdeck-ecs:latest
-    container_name: ecs
+    container_name: "${CONTAINER_NAME:-ecs}"
     restart: unless-stopped
     ports:
       # 默认监听所有网卡 43211（局域网可访问）；只需本机访问可 PORT=127.0.0.1:43211
