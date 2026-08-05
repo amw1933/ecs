@@ -106,7 +106,7 @@ docker compose up -d --build
   默认 **60（每分钟）**，负责定时任务、自动保活、流量熔断、成本同步；
   不需要打开网页，也不需要配置系统定时任务；想改间隔：`CRON_INTERVAL=300 docker compose up -d`
 - 数据持久化：全部在 `./data`（映射为容器内 storage，含 `panel.db` 与 `app.key`），备份/迁移拷贝该目录即可。
-- 代码打进镜像（`/var/www/ecs`），宿主机不需要代码目录，只有一个 `data/`。
+- 代码克隆到 `-build` 目录构建进镜像，部署目录**只显示 `docker-compose.yml` 和 `data/`**，看不到源码文件。
 
 ### Docker 卸载
 
