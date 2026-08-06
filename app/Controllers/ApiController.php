@@ -285,7 +285,8 @@ final class ApiController
 
     private static function instance_release(): void
     {
-        self::runInstanceOp('release');
+        // 为防止误删服务器，释放功能已禁用
+        json_error('释放功能已禁用（为防止误删服务器已移除）', 403);
     }
 
     private static function instance_rule(): void

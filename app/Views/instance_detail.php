@@ -28,10 +28,6 @@ $canOperate = !in_array($it['status'], ['Released', 'Expired', 'Deleted'], true)
                         data-url="<?= e(url('?page=api&action=instance_reboot')) ?>"
                         data-account="<?= (int)$it['account_id'] ?>" data-instance="<?= e($it['instance_id']) ?>">重启</button>
             <?php endif; ?>
-            <button type="button" class="btn btn-sm btn-danger" data-action="instance_release"
-                    data-url="<?= e(url('?page=api&action=instance_release')) ?>"
-                    data-account="<?= (int)$it['account_id'] ?>" data-instance="<?= e($it['instance_id']) ?>"
-                    data-confirm="释放实例「<?= e($it['instance_name'] ?: $it['instance_id']) ?>」将删除云主机及其数据，确定继续吗？">释放实例</button>
         <?php endif; ?>
         <button type="button" class="btn btn-sm btn-outline" data-action="instance_traffic_refresh"
                 data-url="<?= e(url('?page=api&action=instance_traffic_refresh')) ?>" data-id="<?= (int)$it['id'] ?>">刷新流量</button>

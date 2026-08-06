@@ -105,10 +105,6 @@ $statuses = ['Running' => '运行中', 'Stopped' => '已停止', 'Starting' => '
                                         data-url="<?= e(url('?page=api&action=instance_reboot')) ?>"
                                         data-account="<?= (int)$it['account_id'] ?>" data-instance="<?= e($it['instance_id']) ?>">重启</button>
                             <?php endif; ?>
-                            <button type="button" class="btn btn-xs btn-danger-ghost" data-action="instance_release"
-                                    data-url="<?= e(url('?page=api&action=instance_release')) ?>"
-                                    data-account="<?= (int)$it['account_id'] ?>" data-instance="<?= e($it['instance_id']) ?>"
-                                    data-confirm="释放实例「<?= e($it['instance_name'] ?: $it['instance_id']) ?>」将删除云主机及其数据，确定继续吗？">释放</button>
                         <?php endif; ?>
                     </td>
                 </tr>
