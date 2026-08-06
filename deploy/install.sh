@@ -18,6 +18,7 @@
 #   CRON_INTERVAL  自动调度间隔秒（默认 60）
 #   CONTAINER_NAME 容器名（默认 ecs）
 #   IMAGE          镜像地址（默认 docker.io/amw1933/opsdeck-ecs:latest；构建模式自动用本地标签）
+#   COOKIE_SECURE  通过 HTTPS 反代访问时设为 1（Cookie 仅 HTTPS 传输）
 #   DATA_SOURCE    旧部署的 data 目录；新部署时自动继承数据，留空则不复制
 set -e
 
@@ -28,6 +29,7 @@ PORT="${PORT:-0.0.0.0:43211}"
 CRON_INTERVAL="${CRON_INTERVAL:-60}"
 CONTAINER_NAME="${CONTAINER_NAME:-ecs}"
 IMAGE="${IMAGE:-}"
+COOKIE_SECURE="${COOKIE_SECURE:-0}"
 
 command -v docker >/dev/null 2>&1 || { echo "[错误] 缺少 docker（群晖请先安装 Docker 套件）"; exit 1; }
 
@@ -83,7 +85,7 @@ if [ -n "$REPO_URL" ]; then
     fi
     CODE_DIR="$BUILD_DIR"
     echo "==> 构建镜像 ${IMAGE}（首次约几分钟）"
-    ( cd "$CODE_DIR" && PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" CONTAINER_NAME="$CONTAINER_NAME" docker compose build )
+    ( cd "$CODE_DIR" && PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" CONTAINER_NAME="$CONTAINER_NAME" COOKIE_SECURE="$COOKIE_SECURE" docker compose build )
     cp "$CODE_DIR/deploy/docker/compose.runtime.yml" "$DEPLOY_DIR/docker-compose.yml"
 else
     # ===== 拉取模式：直接使用已发布镜像，无需代码/构建 =====
@@ -106,7 +108,7 @@ chmod -R 777 "$DEPLOY_DIR/data" 2>/dev/null || true
 
 # 启动（首次会自动拉取镜像）
 echo "==> 启动服务"
-( cd "$DEPLOY_DIR" && IMAGE="$IMAGE" PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" CONTAINER_NAME="$CONTAINER_NAME" docker compose up -d )
+( cd "$DEPLOY_DIR" && IMAGE="$IMAGE" PORT="$PORT" CRON_INTERVAL="$CRON_INTERVAL" CONTAINER_NAME="$CONTAINER_NAME" COOKIE_SECURE="$COOKIE_SECURE" docker compose up -d )
 docker exec -u root "$CONTAINER_NAME" chown -R www-data:www-data /var/www/ecs/storage 2>/dev/null || true
 
 echo ""

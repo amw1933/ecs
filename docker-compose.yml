@@ -12,6 +12,7 @@ services:
     environment:
       TZ: Asia/Shanghai
       CRON_INTERVAL: "${CRON_INTERVAL:-60}"
+      COOKIE_SECURE: "${COOKIE_SECURE:-0}"
     volumes:
       # 宿主机只需一个 data 目录：映射为容器内的 storage（数据库、密钥、日志全部在这里）
       - ./data:/var/www/ecs/storage
